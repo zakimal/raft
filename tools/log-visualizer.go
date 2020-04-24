@@ -80,10 +80,10 @@ const tmpl = `
 </html>
 `
 
-type ServerState interface
+type ServerState int
 
 const (
-	Follower ServerState = iot
+	Follower ServerState = iota
 	Candidate
 	Leader
 	Dead
@@ -106,7 +106,7 @@ func (s ServerState) String() string {
 }
 
 func emitTestResult(dirName string, tl TestLog) {
-	fileName = path.Join(dirName, tl.name + ".html")
+	fileName := path.Join(dirName, tl.name + ".html")
 	f, err := os.Create(fileName)
 	if err != nil {
 		log.Fatal(err)
@@ -122,18 +122,18 @@ func emitTestResult(dirName string, tl TestLog) {
 	var tested bool
 
 	if _, ok := tl.ids["TEST"]; ok {
-		tested = emitTestResult
+		tested = true
 		numServers = len(tl.ids) - 1
 	} else {
 		tested = false
 		numServers = len(tl.ids)
 	}
 
-	headers = []string{"Time"}
+	headers := []string{"Time"}
 	if tested {
 		headers = append(headers, "TEST")
 	}
-	for i := 0; i < num_server; i++ {
+	for i := 0; i < numServers; i++ {
 		headers = append(headers, strconv.Itoa(i))
 	}
 
@@ -192,7 +192,7 @@ func emitTestResult(dirName string, tl TestLog) {
 		Headers []string
 		HtmlItems []string
 	}{
-		Title: fmt.Sprintf("%s -- %s", tl.name, tl,status)
+		Title: fmt.Sprintf("%s -- %s", tl.name, tl.status),
 		Headers: headers,
 		HtmlItems: htmlItems,
 	}
@@ -251,14 +251,14 @@ func main() {
 
 	tnames := make(map[string]int)
 
-	for i, tl := tange testLogs {
+	for i, tl := range testLogs {
 		if count, ok := tnames[tl.name]; ok {
-			testLogs[i].name = fmt.Sprintf("%s_%d", tl.name, count)
-		}
+		testLogs[i].name = fmt.Sprintf("%s_%d", tl.name, count)
+	}
 		tnames[tl.name] += 1
 	}
 
-	statusSummary = "PASS"
+	statusSummary := "PASS"
 
 	for _, tl := range testLogs {
 		fmt.Println(tl.status, tl.name, tl.ids, "; entries:", len(tl.entries))
